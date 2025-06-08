@@ -153,13 +153,12 @@ router.get('/active', authenticateToken, async (req, res) => {
              AND valid_until < ? 
              AND deleted_at IS NULL`, 
             [now]
-        );
-
-        // Then get all active and recently expired passes
+        );        // Then get all active and recently expired passes
         const [passes] = await db.query(
-            `SELECT ep.*, e.name as event_name 
+            `SELECT ep.*, e.name as event_name, u.name as creator_name, u.role as creator_role
              FROM entry_passes ep
              LEFT JOIN events e ON ep.event_id = e.id
+             LEFT JOIN users u ON ep.created_by = u.id
              WHERE ep.deleted_at IS NULL
              AND (
                  (ep.status IN ('active', 'used') AND ep.valid_until >= ?)
@@ -185,11 +184,11 @@ router.get('/active', authenticateToken, async (req, res) => {
 // Verify pass by passId route
 router.get('/verify/:passId', async (req, res) => {
     try {
-        const { passId } = req.params;
-        const [passes] = await db.query(
-            `SELECT ep.*, e.name as event_name 
+        const { passId } = req.params;        const [passes] = await db.query(
+            `SELECT ep.*, e.name as event_name, u.name as creator_name, u.role as creator_role
              FROM entry_passes ep 
-             LEFT JOIN events e ON ep.event_id = e.id 
+             LEFT JOIN events e ON ep.event_id = e.id
+             LEFT JOIN users u ON ep.created_by = u.id 
              WHERE ep.pass_id = ? AND ep.deleted_at IS NULL`,
             [passId]
         );
@@ -254,13 +253,12 @@ router.get('/verify/:passId', async (req, res) => {
 // Verify and record entry/exit
 router.post('/:passId/verify', authenticateToken, async (req, res) => {
     try {
-        const { passId } = req.params;
-
-        // Get the current state of the pass
+        const { passId } = req.params;        // Get the current state of the pass
         const [passes] = await db.query(
-            `SELECT ep.*, e.name as event_name 
+            `SELECT ep.*, e.name as event_name, u.name as creator_name, u.role as creator_role
              FROM entry_passes ep 
              LEFT JOIN events e ON ep.event_id = e.id 
+             LEFT JOIN users u ON ep.created_by = u.id
              WHERE UPPER(ep.pass_id) = UPPER(?) AND ep.deleted_at IS NULL`,
             [passId]
         );
