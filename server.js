@@ -8,9 +8,19 @@ import reportsRoutes from './routes/reports.js';
 
 const app = express();
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://secure-in.vercel.app',
+];
+
 app.use(cors({
-  origin: 'https://secure-in.vercel.app',
-  origin: 'http://localhost:5173',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
