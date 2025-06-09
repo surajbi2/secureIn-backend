@@ -34,9 +34,11 @@ router.post('/', authenticateToken, async (req, res) => {
             department,
             purpose,
             validFrom,
-            validUntil        } = req.body;        const passId = generatePassId();
+            validUntil } = req.body;     
+        const passId = generatePassId();
         // Use the QR verification URL from the frontend
-        const verificationUrl = `http://localhost:5173/qr-verify-pass/${passId}`;
+        // const verificationUrl = `http://localhost:5173/qr-verify-pass/${passId}`;
+        const verificationUrl = `https://secure-in.vercel.app/qr-verify-pass/${passId}`;
         const qrCode = await QRCode.toDataURL(verificationUrl);
 
         // Store dates exactly as received
