@@ -9,8 +9,8 @@ import reportsRoutes from './routes/reports.js';
 const app = express();
 
 app.use(cors({
-  // origin: 'https://secure-in.vercel.app' 
-  origin: 'http://localhost:5173',
+  origin: 'https://secure-in.vercel.app',
+  // origin: 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
